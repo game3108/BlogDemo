@@ -1,6 +1,5 @@
 ##前言
-本文csdn地址：http://blog.csdn.net/game3108/article/details/52043661
-本文的demo更新在[github](https://github.com/game3108/JSONModel1.20)上。
+本文的demo更新在[github](https://github.com/game3108/BlogDemo/tree/master/JSONModel1.20)上。
 
 客户端请求服务器，经常使用的时JSON方式传递数据。一些第三方开源库帮助我们将JSON转化为Model对象，其中比较有名的有：YYModel,JSONModel,Mantle,MJExtension等。今天主要讲一下[JSONModel](https://github.com/jsonmodel/jsonmodel)和相应的源代码。 (以下代码都是建立在release 1.20版本的基础上。） 
 
@@ -720,5 +719,6 @@ key mapper主要是用来针对某些json字段名和model数据名不一致的�
 (PS:和同事聊起这方面的话题，他表示YYModel的效率会比JSONModel高好几倍，下一份就看一下YYModel的源代码。)
 
 ##参考资料
+[本文csdn地址](http://blog.csdn.net/game3108/article/details/52043661)
 1.[Objective-C Runtime Programming Guide](https://developer.apple.com/library/prerelease/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html#//apple_ref/doc/uid/TP40008048-CH101-SW1)
 2.[JSONModel源码解析](http://satanwoo.github.io/2015/09/17/code-of-JSONModel/?utm_source=tuicool&utm_medium=referral)
