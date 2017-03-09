@@ -7,4 +7,4 @@ JSONModel v1.20 source code document
 
 附带ppt JSONModel源代码分析.key
 
-[JSONModel源代码解析.md](https://github.com/game3108/JSONModel1.20/blob/master/JSONModel%E6%BA%90%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90.md)
+[JSONModel源代码解析.md](https://github.com/game3108/BlogDemo/edit/master/JSONModel1.20/JSONModel%E6%BA%90%E4%BB%A3%E7%A0%81%E8%A7%A3%E6%9E%90.md)
