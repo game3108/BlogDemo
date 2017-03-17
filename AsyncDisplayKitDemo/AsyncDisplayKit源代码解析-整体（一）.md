@@ -1,7 +1,5 @@
 ##前言
-本文csdn地址：http://blog.csdn.net/game3108/article/details/54316576
-
-本文的中文注释代码demo更新在我的[github](https://github.com/game3108/AsyncDisplayKitDemo)上。
+本文的中文注释代码demo更新在我的[github](https://github.com/game3108/BlogDemo/tree/master/AsyncDisplayKitDemo)上。
 
 ![](http://upload-images.jianshu.io/upload_images/1829891-a548fcbe964fe7b2.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -87,6 +85,7 @@ ASDK还包含以下内容：
 本文大体上介绍了一下AsyncDisplayKit的整体流程和优化方法，之后的几章将从源代码角度去分析ASDK的渲染过程。
 
 ##参考资料
+[本文csdn地址](http://blog.csdn.net/game3108/article/details/54316576)
 1.[AsyncDisplayKit源码分析](http://awhisper.github.io/2016/05/06/AsyncDisplayKit%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90/)
 2.[AsyncDisplayKit介绍](https://medium.com/@jasonyuh/asyncdisplaykit%E4%BB%8B%E7%BB%8D-%E4%B8%80-6b871d29e005#.ka94bjlbh)
 3.[提升 iOS 界面的渲染性能](https://zhuanlan.zhihu.com/p/22255533?refer=iOS-Source-Code)
