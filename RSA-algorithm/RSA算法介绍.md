@@ -1,19 +1,17 @@
-##前言
-本文CSDN地址：http://blog.csdn.net/game3108/article/details/53485347
-
-本文的RSA例子代码更新在我的[github](https://github.com/game3108/RSA-algorithm)上。
+## 前言
+本文的RSA例子代码更新在我的[github](https://github.com/game3108/BlogDemo/tree/master/RSA-algorithm)上。
 
 RSA算法是最重要算法之一，它是计算机通信安全的基石，保证了加密数据不会被破解。**本文主要参考了参考资料中的文章，介绍一下RSA算法的内容，自己写一遍，算是学习了。**
 
-##历史
-####1.对称加密算法
+## 历史
+#### 1.对称加密算法
 在1976年以前，所有的加密方法都是同一种模式["对称加密算法"](http://zh.wikipedia.org/zh-cn/%E5%AF%B9%E7%AD%89%E5%8A%A0%E5%AF%86)（Symmetric-key algorithm）:
 
 * （1）甲方选择某一种加密规则，对信息进行加密；
 * （2）乙方使用同一种规则，对信息进行解密。
 
 这种加密模式有一个最大弱点：甲方必须把加密规则告诉乙方，否则无法解密。
-####2.非对称加密算法
+#### 2.非对称加密算法
 1976年，两位美国计算机学家Whitfield Diffie 和 Martin Hellman，提出了一种崭新构思，可以在不直接传递密钥的情况下，完成解密。这被称为["Diffie-Hellman密钥交换算法"](http://en.wikipedia.org/wiki/Diffie%E2%80%93Hellman_key_exchange)。
 
 * （1）甲要传密信给乙，乙先根据某种算法得出本次与甲通信的公钥与私钥
@@ -27,24 +25,24 @@ RSA算法是最重要算法之一，它是计算机通信安全的基石，保�
 这种算法非常[可靠](http://en.wikipedia.org/wiki/RSA_Factoring_Challenge)，密钥越长，它就越难破解。根据已经披露的文献，目前被破解的最长RSA密钥是768个二进制位。也就是说，长度超过768位的密钥，还无法破解（至少没人公开宣布）。因此可以认为，1024位的RSA密钥基本安全，2048位的密钥极其安全。
 
 
-##数论知识
-####1.质数
+## 数论知识
+#### 1.质数
 一个大于1的自然数，除了1和它本身外，不能被其他自然数整除（除0以外）的数称之为质数（素数）；否则称为合数。
-####2.互质数
+#### 2.互质数
 **互质**，又称**互素**。若N个整数的[最大公因子](http://zh.wikipedia.org/wiki/%E6%9C%80%E5%A4%A7%E5%85%AC%E5%9B%A0%E6%95%B8)是1，则称这N个整数互质。
-####3.指数运算
+#### 3.指数运算
 >指数运算又称乘方计算，计算结果称为幂。*nm
 *指将*n*自乘*m*次。把*nm
 *看作乘方的结果，叫做”n的m次幂”或”n的m次方”。其中，n称为“**底数**”，m称为“**[指数](https://zh.wikipedia.org/wiki/%E6%8C%87%E6%95%B0)**”。
 
-####4.模运算
+#### 4.模运算
 >让m去被n整除，只取所得的余数作为结果，就叫做模运算。
 
 例如，10 mod 3 = 1 、26 mod 6 = 2 、28 mod 2 = 0
-####5.同余
+#### 5.同余
 >给定一个正整数m，如果两个整数a和b满足a-b能被m整除，即(a-b)modm=0，那么就称整数a与b对模m同余，记作a≡b(modm)，同时可成立amodm=b。
 
-####6.欧拉函数
+#### 6.欧拉函数
 >任意给定正整数n，计算在小于等于n的正整数之中，有多少个与n构成互质关系？计算这个值的方法就叫做欧拉函数，以φ(n)表示.
 
 例如，在1到8之中，与8形成互质关系的是1、3、5、7，所以φ(n)=4
@@ -56,7 +54,7 @@ RSA算法是最重要算法之一，它是计算机通信安全的基石，保�
 由上易得，若我们知道一个数n可以分解为两个**质数**p和q的乘积，则有
 φ(n)=(p-1)(q-1)
 
-####7.欧拉定理
+#### 7.欧拉定理
 >如果两个正整数a和n互质，则n的欧拉函数φ(n)可以让下面的等式成立：
 ![](http://upload-images.jianshu.io/upload_images/1829891-47c5e3497bd4b0df.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -64,7 +62,7 @@ RSA算法是最重要算法之一，它是计算机通信安全的基石，保�
 
 比如，3和7互质，而7的欧拉函数φ(7)等于6，所以3的6次方（729）减去1，可以被7整除（728/7=104）。
 
-####8.模反元素
+#### 8.模反元素
 
 >
 ![](http://upload-images.jianshu.io/upload_images/1829891-5daf89a581f7f82e.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
@@ -75,8 +73,8 @@ RSA算法是最重要算法之一，它是计算机通信安全的基石，保�
 
 比如，3和11互质，那么3的模反元素就是4，因为 (3 × 4)-1 可以被11整除。显然，模反元素不止一个， 4加减11的整数倍都是3的模反元素 {...,-18,-7,4,15,26,...}，即如果b是a的模反元素，则 b+kn 都是a的模反元素。
 
-##算法基础
-####1.实例
+## 算法基础
+#### 1.实例
 先通过一个实例来理解RSA算法的过程：
 
 甲要发给乙一个加密内容：m=65
@@ -103,7 +101,7 @@ RSA算法是最重要算法之一，它是计算机通信安全的基石，保�
 
 从始至终，用来解密的私钥(n,d)=(3233,2753)一直都在乙处，从未泄露。乙给甲的仅仅是用来加密的公钥(3233,17)，这个公钥并不能用来解密，即使被他人截获，也没有任何泄密的风险。
 
-####2.计算公私钥
+#### 2.计算公私钥
 * 1.随机选择两个不相等的质数p和q（乙选择了61和53）
 * 2.计算p和q的乘积n=p×q=61×53=3233
 * 3.根据本文“欧拉函数”介绍过的公式
@@ -126,7 +124,7 @@ n=3233，e=17，d=2753
 
 **至此，整个rsa公私钥的算法就清楚了**
 
-####3.推导
+#### 3.推导
 整个过程中，让人困扰的可能是
 ![式子1](http://upload-images.jianshu.io/upload_images/1829891-3c9a991741dc07d9.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 与
@@ -144,7 +142,7 @@ n=3233，e=17，d=2753
 ![](http://upload-images.jianshu.io/upload_images/1829891-4076ef8351b67072.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
 
-####4.安全性
+#### 4.安全性
 在上面给出的例子中，一共出现了6个数字：
 
 * 随机质数p	 	61
@@ -165,8 +163,8 @@ n=3233，e=17，d=2753
 **事实上，RSA的安全性就是源自你没办法轻易的对大整数“因式分解”。人类已经分解的最大整数（232个十进制位，768个二进制位）。比它更大的因数分解，还没有被报道过，因此目前被破解的最长RSA密钥就是768位。实际应用中，RSA密钥一般是1024位，重要场合则为2048位。**
 
 
-##算法实现
-####iOS中的实现与使用
+## 算法实现
+#### iOS中的实现与使用
 iOS的 <sercurity.framework>框架中包含可以使用RSA加密与解密的方法：
 ```
 //加密方法
@@ -209,7 +207,7 @@ OSStatus SecKeyDecrypt(
 ```
 具体的RSAEncryptor代码，这里就不贴了，可以从我的[github](https://github.com/game3108/RSA-algorithm)上找相应的iOS加解密的代码。上面还有一个c++的RSA算法的例子，可以看一下。
 
-##总结
+## 总结
 本文主要还是整理了网上各个文章，其中数学原理解释的最清楚的应该是阮一峰的[RSA算法原理（一）](http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html)与[RSA算法原理（二）](http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html)。数学原理上有不懂的可以再看一下这两篇文章。最后总结一下RSA算法加密方式。
 
 密钥组成与加解密 | 公式
@@ -219,7 +217,8 @@ OSStatus SecKeyDecrypt(
 加密 | ![](http://upload-images.jianshu.io/upload_images/1829891-fc0048217477f83d.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 解密 | ![](http://upload-images.jianshu.io/upload_images/1829891-73de887504a8843c.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
-##参考资料
+## 参考资料
+[本文CSDN地址](http://blog.csdn.net/game3108/article/details/53485347)
 1.[RSA算法原理（一）](http://www.ruanyifeng.com/blog/2013/06/rsa_algorithm_part_one.html)
 2.[RSA算法原理（二）](http://www.ruanyifeng.com/blog/2013/07/rsa_algorithm_part_two.html)
 2.[wiki-RSA加密算法](https://zh.wikipedia.org/zh-cn/RSA%E5%8A%A0%E5%AF%86%E6%BC%94%E7%AE%97%E6%B3%95)
