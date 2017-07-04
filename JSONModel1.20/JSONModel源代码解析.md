@@ -1,9 +1,9 @@
-##前言
+## 前言
 本文的demo更新在[github](https://github.com/game3108/BlogDemo/tree/master/JSONModel1.20)上。
 
 客户端请求服务器，经常使用的时JSON方式传递数据。一些第三方开源库帮助我们将JSON转化为Model对象，其中比较有名的有：YYModel,JSONModel,Mantle,MJExtension等。今天主要讲一下[JSONModel](https://github.com/jsonmodel/jsonmodel)和相应的源代码。 (以下代码都是建立在release 1.20版本的基础上。） 
 
-##常规解析
+## 常规解析
 解析JSON数据的最基础的方法是使用``NSJSONSerialization``，比如下面的一个最简单的网络请求
 ```
     NSData* ghData = [NSData dataWithContentsOfURL: [NSURL URLWithString:@"http://xxxx"]];
@@ -48,7 +48,7 @@
 * 3.很多时候json数据如果有遗漏或者变化，比较难发现
 比如对应上面的age这个值，json数据中如果不包含age，通过``[json[@"age"] integerValue]``的写法，就会把值设置为0，这在很多时候容易被忽略，以为json数据中包含这样的值。
 
-##JSONModel解析
+## JSONModel解析
 我们只需要建立这样一个JSONModel对象
 ```
 #import <JSONModel/JSONModel.h>
@@ -66,9 +66,9 @@
 ```
 就可以将model的值进行自行设置，相对于常规方法，大大简化了代码量和难度。
 
-##JSONModel源代码分析
+## JSONModel源代码分析
 
-####目录结构
+#### 目录结构
 我们先来看一下JSONModel的目录结构
 
 ![JSONModel目录](http://upload-images.jianshu.io/upload_images/1829891-b6e421ecb099c481.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
@@ -133,7 +133,7 @@
 * 6.本地数据正确性检查
 **以下我将主要解析3，4，5这三部分的主代码**
 
-####初始化
+#### 初始化
 以下是初始化的调用函数
 ```
 -(void)__setup__
@@ -403,7 +403,7 @@ key mapper主要是用来针对某些json字段名和model数据名不一致的�
 
 通过protocol就可以达到标明array与dictionary中对应元素的类型，和一些对于property解析的时候有用的表示。
 
-####查值
+#### 查值
 ```
 -(BOOL)__doesDictionary:(NSDictionary*)dict matchModelWithKeyMapper:(JSONKeyMapper*)keyMapper error:(NSError**)err
 {
@@ -466,7 +466,7 @@ key mapper主要是用来针对某些json字段名和model数据名不一致的�
 ```
 **查值的作用主要就是为了能够检查是否model的所有property是否都能够被赋值，如果不能则说明缺少值则抛出错误。这边主要的亮点就是使用了NSSet，将dictionary的所有key存入一个set：incomingKeys，并且将key mapper映射名进行替换。将刚解析出来的model所有property的name也存入一个set：requiredProperties，判断两者是不是包含关系。**
 
-####赋值
+#### 赋值
 
 ```
 -(BOOL)__importDictionary:(NSDictionary*)dict withKeyMapper:(JSONKeyMapper*)keyMapper validation:(BOOL)validation error:(NSError**)err
@@ -704,7 +704,7 @@ key mapper主要是用来针对某些json字段名和model数据名不一致的�
 循环遍历model的每一个解析出来的property结构，首先从dictioanry拿出真正对应property的value，进行value一系列的值判断。value可用的情况下，就开始进行赋值，有setter方法的通过setter方法赋值，基础类型int，float等直接赋值，如果property又是一个JSONModel，就递归先将子Model进行整体解析。如果包含protocol字段，则表明内部是一个array或者dictionary，并包含这个protocol字段的对象解析。对于其他情况，应该是一种类型的转换，通过获取值类型和property类型，调用相应的转换方法进行赋值。
 其中值得一提的就是JSONValueTransformer的类型转化，它解决了我们之前所说的麻烦1，将数据类型得以正确转换。**
 
-##总结
+## 总结
 至此，JSONModel主代码的作为，基本解释的差不多了。
 总的来说JSONModel的源代码有以下优点：
 * Runtime动态解析model数据类型
@@ -718,7 +718,7 @@ key mapper主要是用来针对某些json字段名和model数据名不一致的�
 如果以上有任何我说错的地方，或者可以解释的更好的地方，也欢迎给我留言，我也会修改我的错误。Thanks。
 (PS:和同事聊起这方面的话题，他表示YYModel的效率会比JSONModel高好几倍，下一份就看一下YYModel的源代码。)
 
-##参考资料
+## 参考资料
 [本文csdn地址](http://blog.csdn.net/game3108/article/details/52043661)
 1.[Objective-C Runtime Programming Guide](https://developer.apple.com/library/prerelease/content/documentation/Cocoa/Conceptual/ObjCRuntimeGuide/Articles/ocrtPropertyIntrospection.html#//apple_ref/doc/uid/TP40008048-CH101-SW1)
 2.[JSONModel源码解析](http://satanwoo.github.io/2015/09/17/code-of-JSONModel/?utm_source=tuicool&utm_medium=referral)
