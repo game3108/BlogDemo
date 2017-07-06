@@ -1,4 +1,4 @@
-##前言
+## 前言
 本文的中文注释代码demo更新在我的[github](https://github.com/game3108/BlogDemo/tree/master/YYModelDemo)上。
 
 对于Model对象转换框架，之前有过[JSONModel源代码解析](http://www.jianshu.com/p/64ce3927eb62)。而这次来分析的框架，则是性能更佳优秀的[YYModel](https://github.com/ibireme/YYModel)。
@@ -7,7 +7,7 @@ YYModel有比大多数同类框架，有着很好的性能优势（下图为作�
 
 **在看源代码的过程中，也发现了一些不错的YYModel源代码的分析。本文主要结合一些其中的分析，加上个人的见解，写在这里，算是个人学习和记录。本文预计会分成3篇来完成，**
 
-##YYModel使用
+## YYModel使用
 YYModel的使用相对于JSOMModel更佳简单，不需要类去继承JSONModel：
 对Manually的方式，和JSONModel的解析方法，在文章[JSONModel源代码解析](http://www.jianshu.com/p/64ce3927eb62)中已经有过，这边只介绍YYModel的方式：
 
@@ -39,7 +39,7 @@ NSDictionary *json = [testObject yy_modelToJSONObject];
 
 **显然，相较于JSONModel每个model类都必须继承于JSONModel类的作法，YYModel更佳方便和快捷**
 
-##整体结构
+## 整体结构
 YYModel本身的目录结构十分精简：
 ![YYModel目录](http://upload-images.jianshu.io/upload_images/1829891-6bec1ddc5f880c8f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
@@ -68,7 +68,7 @@ YYModel本身的目录结构十分精简：
 
 **此次分析，将会先看一下``yy_modelWithJSON``方法的调用，讲一下大体代码思路，然后就分别分析YYModel.h，YYClassInfo，NSObject+YYModel源代码，相当于从下而上进行分析。**
 
-##大体思路
+## 大体思路
 ```
 //先转化json对象到dictionary，再调用yy_modelWithDictionary
 + (instancetype)yy_modelWithJSON:(id)json {
@@ -101,7 +101,7 @@ YYModel本身的目录结构十分精简：
 **大致的思路就是先通过``_yy_dictionaryWithJSON``将json对象转成dictionary，然后调用``yy_modelWithDictionary``，解析获得解析出来的_YYModelMeta对象（有缓存），判断是否有本地的class类型映射，最后再通过``yy_modelSetWithDictionary``进行附值，返回model对象。**
 
 
-##YYModel.h
+## YYModel.h
 YYModel.h本身只是个倒入项目的头文件，代码如下：
 ```
 #import <Foundation/Foundation.h>
@@ -131,10 +131,10 @@ FOUNDATION_EXPORT const unsigned char YYModelVersionString[];
 * 编译选项-I所指定的目录
 * 环境变量include所定义的目录
 
-##小结
+## 小结
 本文主要大体介绍了一下YYModel的整体结构，代码调用思路以及头文件YYModel.h代码。针对核心的NSObject+YYModel与YYClassInfo会分篇完成。
 
-##参考资料
+## 参考资料
 [本文csdn地址](http://blog.csdn.net/game3108/article/details/52388089)
 1.[iOS JSON 模型转换库评测](http://blog.ibireme.com/2015/10/23/ios_model_framework_benchmark/)
 2.[郑钦洪_：YYModel 源码历险记](http://www.jianshu.com/p/9d9119d3d1e3)
