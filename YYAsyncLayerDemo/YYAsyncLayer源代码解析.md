@@ -1,11 +1,11 @@
-##前言
+## 前言
 本文CSDN地址：http://blog.csdn.net/game3108/article/details/53023941
 本文的中文注释代码demo更新在我的[github](https://github.com/game3108/YYAsyncLayerDemo)上。
 
 在研究iOS UI性能优化上，异步绘制一直是一个离不开的话题。最近在研究Facebook的开源框架AsyncDisplayKit的时候，找到了YYKit作者所实现的[YYAsyncLayer](https://github.com/ibireme/YYAsyncLayer)。从这个项目了解异步绘制的方法。
 
 
-##项目结构
+## 项目结构
 
 YYAsyncLayer项目较为简单，一共就三个文件：
 
@@ -17,8 +17,8 @@ YYAsyncLayer项目较为简单，一共就三个文件：
 
 以下将分别介绍下面3个文件。
 
-##源代码
-###YYSentinel
+## 源代码
+### YYSentinel
 YYSentinel使用原子性操作函数，进行计数。
 ```
 /**
@@ -54,7 +54,7 @@ YYSentinel使用原子性操作函数，进行计数。
 
 @end
 ```
-###YYTransaction
+### YYTransaction
 YYTransaction的逻辑也并不复杂：将target和相应selector存入一个set中（重写hash与isEqual用于set判断），并且在runloop中注册kCFRunLoopBeforeWaiting与kCFRunLoopExit事件，将优先级定义为0，即在Core Animation执行完毕后，执行相应的display方法，去模拟Core Animation的绘制机制，进行相应异步绘制的方法。
 YYTransaction.h声明
 ```
@@ -413,7 +413,7 @@ static dispatch_queue_t YYAsyncLayerGetReleaseQueue() {
 
 ```
 
-##用法
+## 用法
 这里举作者在github里写的简单例子：
 在设置内容与``layoutSubviews``内添加YYTransaction，并且实现了``- (YYAsyncLayerDisplayTask *)newAsyncDisplayTask``方法去实现相应的三个block，这样，一个异步绘制的YYLabel就完成了。
 
@@ -488,13 +488,13 @@ static dispatch_queue_t YYAsyncLayerGetReleaseQueue() {
 @end
 ```
 
-##总结
+## 总结
 YYAsyncLayer内使用YYTransaction在 RunLoop 中注册了一个 Observer，监视的事件和 Core Animation 一样，但优先级比 CA 要低。当 RunLoop 进入休眠前、CA 处理完事件后，YYTransaction 就会执行该 loop 内提交的所有任务。
 在YYAsyncLayer中，通过重写CALayer显示display方法，向delegate请求一个异步绘制的任务，并且在子线程中绘制Core Graphic对象，最后再回到主线程中设置layer.contents内容。
 
 附上作者的部分解读：
 >YYAsyncLayer 是 CALayer 的子类，当它需要显示内容（比如调用了 [layer setNeedDisplay]）时，它会向 delegate，也就是 UIView 请求一个异步绘制的任务。在异步绘制时，Layer 会传递一个 BOOL(^isCancelled)() 这样的 block，绘制代码可以随时调用该 block 判断绘制任务是否已经被取消。
 
-##参考资料
+## 参考资料
 1.[iOS 保持界面流畅的技巧](http://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/)
 2.[深入理解RunLoop](http://blog.ibireme.com/2015/05/18/runloop/)
