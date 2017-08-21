@@ -1,10 +1,10 @@
-##前言
+## 前言
 本文的中文注释代码demo更新在我的[github](https://github.com/game3108/BlogDemo/tree/master/YYModelDemo)上。
 
  上篇 [YYModel源代码分析（二）YYClassInfo
 ](http://www.jianshu.com/p/012dbce17a50) 主要分析了YYClassInfo文件。本篇会主要集中在NSObject+YYModel文件上。文章内容会包含一些与JSONModel的比较，想了解JSONModel，可以参考[JSONModel源代码解析](http://www.jianshu.com/p/64ce3927eb62)。
 
-##主体分层
+## 主体分层
 NSObject+YYModel主要分为以下几个部分：
 
 *  内部使用的C函数部分
@@ -17,10 +17,10 @@ NSObject+YYModel主要分为以下几个部分：
 
 由于代码较多，所以会挑重点的部分进行介绍。
 
-##NSObject+YYModel源代码
+## NSObject+YYModel源代码
 
-###@interface _YYModelPropertyMeta : NSObject
-####声明
+### @interface _YYModelPropertyMeta : NSObject
+#### 声明
 ```
 /// A property info in object model.
 // model property的进一步分装
@@ -98,7 +98,7 @@ NSObject+YYModel主要分为以下几个部分：
              @"userSet" : YYBaseUser.class};
 }
 ```
-####实现
+#### 实现
 ```
 //通过YYClassInfo，YYClassPropertyInfo，Class对象解析成_YYModelPropertyMeta
 + (instancetype)metaWithClassInfo:(YYClassInfo *)classInfo propertyInfo:(YYClassPropertyInfo *)propertyInfo generic:(Class)generic {
@@ -215,8 +215,8 @@ NSObject+YYModel主要分为以下几个部分：
 ```
 实现部分还是容易理解，主要还是通过YYClassInfo，YYClassPropertyInfo，Class对象解析成_YYModelPropertyMeta。
 
-###@interface _YYModelMeta : NSObject
-####声明
+### @interface _YYModelMeta : NSObject
+#### 声明
 ```
 /// A class info in object model.
 // model class的进一层封装
@@ -310,7 +310,7 @@ _multiKeysPropertyMetas是表示映射如果是一个NSArray比如``@"modelID" :
 ```
 最后一个在``_YYModelPropertyMeta``已经提过，这里不再提。
 
-####实现
+#### 实现
 
 ```
 - (instancetype)initWithClass:(Class)cls {
@@ -477,168 +477,4 @@ _multiKeysPropertyMetas是表示映射如果是一个NSArray比如``@"modelID" :
 //返回缓存的model class meta
 + (instancetype)metaWithClass:(Class)cls {
     if (!cls) return nil;
-    static CFMutableDictionaryRef cache;        //class的_YYModelMeta缓存
-    static dispatch_once_t onceToken;
-    static dispatch_semaphore_t lock;
-    dispatch_once(&onceToken, ^{
-        cache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-        lock = dispatch_semaphore_create(1);
-    });
-    dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-    _YYModelMeta *meta = CFDictionaryGetValue(cache, (__bridge const void *)(cls));
-    dispatch_semaphore_signal(lock);
-    if (!meta || meta->_classInfo.needUpdate) {             //利用
-        meta = [[_YYModelMeta alloc] initWithClass:cls];    //重新构造 _YYModelMeta缓存
-        if (meta) {                                         //设置缓存
-            dispatch_semaphore_wait(lock, DISPATCH_TIME_FOREVER);
-            CFDictionarySetValue(cache, (__bridge const void *)(cls), (__bridge const void *)(meta));
-            dispatch_semaphore_signal(lock);
-        }
-    }
-    return meta;
-}
-```
-实现处理了很多key mapper的映射问题，但本身逻辑并不复杂。
-
-##解析逻辑
-
-```
-//id json对象转化为 dictioanry的方法
-+ (NSDictionary *)_yy_dictionaryWithJSON:(id)json {
-    if (!json || json == (id)kCFNull) return nil;
-    NSDictionary *dic = nil;
-    NSData *jsonData = nil;
-    if ([json isKindOfClass:[NSDictionary class]]) {
-        dic = json;
-    } else if ([json isKindOfClass:[NSString class]]) {
-        jsonData = [(NSString *)json dataUsingEncoding : NSUTF8StringEncoding];
-    } else if ([json isKindOfClass:[NSData class]]) {
-        jsonData = json;
-    }
-    if (jsonData) {
-        dic = [NSJSONSerialization JSONObjectWithData:jsonData options:kNilOptions error:NULL];
-        if (![dic isKindOfClass:[NSDictionary class]]) dic = nil;
-    }
-    return dic;
-}
-
-//先转化json对象到dictionary，再调用yy_modelWithDictionary
-+ (instancetype)yy_modelWithJSON:(id)json {
-    NSDictionary *dic = [self _yy_dictionaryWithJSON:json];
-    return [self yy_modelWithDictionary:dic];
-}
-
-//解析model属性并附值
-+ (instancetype)yy_modelWithDictionary:(NSDictionary *)dictionary {
-    if (!dictionary || dictionary == (id)kCFNull) return nil;
-    if (![dictionary isKindOfClass:[NSDictionary class]]) return nil;
-    
-    Class cls = [self class];
-    //解析class得到modelmeta对象
-    _YYModelMeta *modelMeta = [_YYModelMeta metaWithClass:cls];
-    //本地class类型映射
-    if (modelMeta->_hasCustomClassFromDictionary) {
-        cls = [cls modelCustomClassForDictionary:dictionary] ?: cls;
-    }
-    
-    NSObject *one = [cls new];
-    //附值函数
-    if ([one yy_modelSetWithDictionary:dictionary]) return one;
-    return nil;
-}
-
-
-//附值函数
-- (BOOL)yy_modelSetWithDictionary:(NSDictionary *)dic {
-    if (!dic || dic == (id)kCFNull) return NO;
-    if (![dic isKindOfClass:[NSDictionary class]]) return NO;
-    
-
-    _YYModelMeta *modelMeta = [_YYModelMeta metaWithClass:object_getClass(self)];
-    if (modelMeta->_keyMappedCount == 0) return NO;
-    
-    //本地dictionary值替换
-    if (modelMeta->_hasCustomWillTransformFromDictionary) {
-        dic = [((id<YYModel>)self) modelCustomWillTransformFromDictionary:dic];
-        if (![dic isKindOfClass:[NSDictionary class]]) return NO;
-    }
-    
-    ModelSetContext context = {0};
-    context.modelMeta = (__bridge void *)(modelMeta);
-    context.model = (__bridge void *)(self);
-    context.dictionary = (__bridge void *)(dic);
-    
-    
-    //遍历dictioanry并附值
-    if (modelMeta->_keyMappedCount >= CFDictionaryGetCount((CFDictionaryRef)dic)) {
-        CFDictionaryApplyFunction((CFDictionaryRef)dic, ModelSetWithDictionaryFunction, &context);
-        if (modelMeta->_keyPathPropertyMetas) {
-            CFArrayApplyFunction((CFArrayRef)modelMeta->_keyPathPropertyMetas,
-                                 CFRangeMake(0, CFArrayGetCount((CFArrayRef)modelMeta->_keyPathPropertyMetas)),
-                                 ModelSetWithPropertyMetaArrayFunction,
-                                 &context);
-        }
-        if (modelMeta->_multiKeysPropertyMetas) {
-            CFArrayApplyFunction((CFArrayRef)modelMeta->_multiKeysPropertyMetas,
-                                 CFRangeMake(0, CFArrayGetCount((CFArrayRef)modelMeta->_multiKeysPropertyMetas)),
-                                 ModelSetWithPropertyMetaArrayFunction,
-                                 &context);
-        }
-    } else {
-        CFArrayApplyFunction((CFArrayRef)modelMeta->_allPropertyMetas,
-                             CFRangeMake(0, modelMeta->_keyMappedCount),
-                             ModelSetWithPropertyMetaArrayFunction,
-                             &context);
-    }
-    
-    //本地property验证
-    if (modelMeta->_hasCustomTransformFromDictionary) {
-        return [((id<YYModel>)self) modelCustomTransformFromDictionary:dic];
-    }
-    return YES;
-}
-```
-附值这块，就只取``ModelSetWithDictionaryFunction``设置
-```
-static void ModelSetWithDictionaryFunction(const void *_key, const void *_value, void *_context) {
-    ModelSetContext *context = _context;
-    __unsafe_unretained _YYModelMeta *meta = (__bridge _YYModelMeta *)(context->modelMeta); //取_YYModelMeta
-    __unsafe_unretained _YYModelPropertyMeta *propertyMeta = [meta->_mapper objectForKey:(__bridge id)(_key)];  //取_YYModelPropertyMeta
-    __unsafe_unretained id model = (__bridge id)(context->model);
-    while (propertyMeta) {          //循环遍历propertyMeta
-        if (propertyMeta->_setter) {
-            ModelSetValueForProperty(model, (__bridge __unsafe_unretained id)_value, propertyMeta); //设置值
-        }
-        propertyMeta = propertyMeta->_next;
-    };
-}
-```
-而``ModelSetValueForProperty``的设置函数，就是根据不同类型，去调用msgSend调用相应的meta->_setter方法，进行附值，代码较长，这里也不贴了。
-
-**至此，整个YYModel的解析就完成了。**
-
-##总结
-YYModel在整体的解析过程中，分三步：
-1. 先将Class的Method，Property，Ivar分别解析缓存，构成Class的缓存
-2. 构建``_YYModelPropertyMeta``缓存Property结构体，再``_YYModelMeta``缓存``_YYModelPropertyMeta``结构。
-3.根据解析出来的``_YYModelPropertyMeta``与相应的YYEncodingType等属性，进行相应值的设置
-
-**JSONModel与YYModel对比**
-
-对比| JSONModel | YYModel
-----|------|----
-解析方式 | 只解析property attribute encode string | 解析Class Method,Property,Ivar缓存，再构造``_YYModelPropertyMeta``与``_YYModelMeta``
-附值方式 | KVC | 先解析出property的类型，使用msgSend调用meta->setter方法分类型附值
-缓存方式 | AssociatedObject | CFMutableDictionaryRef
-包含类型方式 | 定义同名protocol，声明protocol | 不仅可以声明protocol定义，还可以实现``modelContainerPropertyGenericClass``接口
-映射值为路径解析 | 无 | 有
-model类型转换| 无 |  有
-懒加载  |有 | 无
-是否可以缺省  | 通过protocol optional | 黑名单\白名单
-
-
-
-##参考资料
-[CSDN地址](http://blog.csdn.net/game3108/article/details/52416868)
-1.[JSONModel源代码解析](http://www.jianshu.com/p/64ce3927eb62)
-2.[郑钦洪_：YYModel 源码历险记](http://www.jianshu.com/users/aa41dad549af/latest_articles)
+    static CF
